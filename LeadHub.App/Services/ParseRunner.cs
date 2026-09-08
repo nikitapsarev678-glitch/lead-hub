@@ -35,6 +35,7 @@ public sealed class ParseRunner : IDisposable
         if (!_vpn.IsRunning) throw new InvalidOperationException("Сначала запустите sing-box на вкладке «VPN».");
 
         Workers.Clear();
+        LogLines.Clear();
         for (var i = 0; i < preset.Workers; i++) Workers.Add(new WorkerProgress { SlotIndex = i + 1, State = "ожидание" });
         TotalLeads = 0;
         TotalValidated = 0;
@@ -42,7 +43,7 @@ public sealed class ParseRunner : IDisposable
         var engine = new ParseEngine(_state.Db, _state.Rotator, _state.ResolveSession);
         var dispatcher = Application.Current.Dispatcher;
 
-        engine.Progress += p => dispatcher.BeginInvoke(() =>
+        engine.Progress += p => _ = dispatcher.BeginInvoke(() =>
         {
             var idx = p.SlotIndex - 1;
             if (idx >= 0 && idx < Workers.Count)
@@ -50,12 +51,12 @@ public sealed class ParseRunner : IDisposable
                 Workers[idx] = p;
             }
         });
-        engine.Log += line => dispatcher.BeginInvoke(() =>
+        engine.Log += line => _ = dispatcher.BeginInvoke(() =>
         {
             LogLines.Add($"[{DateTime.Now:HH:mm:ss}] {line}");
             if (LogLines.Count > 800) LogLines.RemoveAt(0);
         });
-        engine.LeadSaved += lead => dispatcher.BeginInvoke(() => { TotalLeads++; CountsChanged?.Invoke(); });
+        engine.LeadSaved += lead => _ = dispatcher.BeginInvoke(() => { TotalLeads++; CountsChanged?.Invoke(); });
 
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
@@ -66,7 +67,7 @@ public sealed class ParseRunner : IDisposable
             try
             {
                 var summary = await engine.RunAsync(preset, basePort, ct);
-                dispatcher.BeginInvoke(() =>
+                _ = dispatcher.BeginInvoke(() =>
                 {
                     TotalValidated = summary.Validated;
                     LogLines.Add($"[{DateTime.Now:HH:mm:ss}] Итог: лидов {summary.Leads}, профилей проверено {summary.Validated}. Причина: {summary.StopReason}.");
@@ -74,17 +75,18 @@ public sealed class ParseRunner : IDisposable
             }
             catch (Exception ex)
             {
-                dispatcher.BeginInvoke(() => LogLines.Add($"[{DateTime.Now:HH:mm:ss}] Ошибка прогона: {ex.Message}"));
+                _ = dispatcher.BeginInvoke(() => LogLines.Add($"[{DateTime.Now:HH:mm:ss}] Ошибка прогона: {ex.Message}"));
             }
             finally
             {
-                dispatcher.BeginInvoke(() =>
+                _ = dispatcher.BeginInvoke(() =>
                 {
                     foreach (var w in Workers) if (w.State != "stopped") w.State = "готово";
                     RunFinished?.Invoke();
                 });
             }
         }, ct);
+        _ = _task;
     }
 
     public void Stop()

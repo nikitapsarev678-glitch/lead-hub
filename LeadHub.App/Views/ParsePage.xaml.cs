@@ -15,10 +15,13 @@ public partial class ParsePage : IRefreshOnNavigate
         vm.RunStarted += () => (Window.GetWindow(this) as MainWindow)?.NavigateTo("run");
         Loaded += (_, _) =>
         {
-            NicheGroupFilter.Items.Add("(все группы)");
-            foreach (var group in vm.Niches.Select(n => n.Group).Distinct().OrderBy(g => g))
-                NicheGroupFilter.Items.Add(group);
-            NicheGroupFilter.SelectedIndex = 0;
+            if (NicheGroupFilter.Items.Count == 0)
+            {
+                NicheGroupFilter.Items.Add("(все группы)");
+                foreach (var group in vm.Niches.Select(n => n.Group).Distinct().OrderBy(g => g))
+                    NicheGroupFilter.Items.Add(group);
+                NicheGroupFilter.SelectedIndex = 0;
+            }
         };
     }
 

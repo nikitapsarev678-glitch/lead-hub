@@ -28,22 +28,26 @@ public sealed class Db : IDisposable
 
     public T Scalar<T>(string sql, object? param = null)
     {
-        lock (_lock) { return _conn.ExecuteScalar<T>(sql, param); }
+        lock (_lock) { return _conn.ExecuteScalar<T>(sql, param)!; }
     }
 
     public T ExecuteScalar<T>(string sql, object? param = null)
     {
-        lock (_lock) { return _conn.ExecuteScalar<T>(sql, param); }
+        lock (_lock) { return _conn.ExecuteScalar<T>(sql, param)!; }
     }
 
     public IEnumerable<T> Query<T>(string sql, object? param = null)
     {
-        lock (_lock) { return _conn.Query<T>(sql, param); }
+        lock (_lock)
+        {
+            var rows = _conn.Query<T>(sql, param);
+            return rows is null ? Enumerable.Empty<T>() : rows;
+        }
     }
 
     public T? FirstOrDefault<T>(string sql, object? param = null)
     {
-        lock (_lock) { return _conn.QueryFirstOrDefault<T>(sql, param); }
+        lock (_lock) { return _conn.QueryFirstOrDefault<T>(sql, param)!; }
     }
 
     public long LastInsertId() => Scalar<long>("SELECT last_insert_rowid();");

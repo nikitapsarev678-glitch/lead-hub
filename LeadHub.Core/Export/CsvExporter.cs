@@ -29,7 +29,6 @@ public static class CsvExporter
             var phone = lead.Phone;
             var waMatch = Regex.Match(lead.WhatsappUrl ?? "", @"wa\.me/(\d{8,15})");
             if (waMatch.Success) phone = waMatch.Groups[1].Value;
-            else if (lead.WhatsappUrl.Length == 0 && phone.Length > 0) { /* телефон уже есть */ }
 
             sb.AppendLine(string.Join(";", new[]
             {

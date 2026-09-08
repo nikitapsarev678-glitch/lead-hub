@@ -72,7 +72,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel VerticalAlignment="Center" Margin="4">
-                                    <TextBox Text="{Binding OutreachText, UpdateSourceTrigger=LostFocus}"
+                                    <TextBox Text="{Binding OutreachText, UpdateSourceTrigger=PropertyChanged}"
                                              LostFocus="OutreachText_LostFocus" TextWrapping="Wrap" MaxHeight="60" />
                                     <ui:Button Content="Скопировать текст" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Left"
                                                Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"

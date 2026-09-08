@@ -23,11 +23,8 @@ public static class Crypto
         return key;
     }
 
-    public static byte[] DeriveKeyFromPassword(string password, byte[] salt)
-    {
-        using var kdf = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256);
-        return kdf.GetBytes(32);
-    }
+    public static byte[] DeriveKeyFromPassword(string password, byte[] salt) =>
+        Rfc2898DeriveBytes.Pbkdf2(password, salt, 100_000, HashAlgorithmName.SHA256, 32);
 
     public static byte[] Encrypt(byte[] plaintext, byte[] key)
     {
