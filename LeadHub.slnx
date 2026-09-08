@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="LeadHub.App/LeadHub.App.csproj" />
+  <Project Path="LeadHub.Core.Tests/LeadHub.Core.Tests.csproj" />
+  <Project Path="LeadHub.Core/LeadHub.Core.csproj" />
+</Solution>
