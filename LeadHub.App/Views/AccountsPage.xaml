@@ -1,0 +1,101 @@
+<Page x:Class="LeadHub.App.Views.AccountsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Аккаунты Instagram">
+    <ScrollViewer Padding="24,16,24,24">
+        <StackPanel Margin="0,24,0,0">
+
+            <TextBlock Text="Аккаунты Instagram" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Text="Пул аккаунтов для парсинга. Ротация берёт наименее используемый; сессии хранятся зашифрованными."
+                       Opacity="0.7" Margin="0,4,0,16" TextWrapping="Wrap" />
+
+            <ui:Card Margin="0,0,0,12" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Импорт сессии (cookies)" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Text="{Binding ImportUsername, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="ник аккаунта" Margin="0,0,8,0" VerticalAlignment="Top" />
+                        <ui:TextBox Grid.Column="1" Text="{Binding ImportCookies, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="80" TextWrapping="Wrap" AcceptsReturn="True"
+                                 PlaceholderText="cookies: sessionid=…; csrftoken=…; ds_user_id=…  (или JSON из EditThisCookie, или cookies.txt)" />
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <ui:Button Content="Импортировать" Appearance="Primary" Command="{Binding ImportCookiesFromTextCommand}" Margin="0,0,8,0" />
+                        <ui:Button Content="Импорт из .lhaccount" Command="{Binding ImportPackageCommand}" Margin="0,0,8,0" />
+                        <ui:PasswordBox x:Name="ExportPasswordBox" Width="180" VerticalAlignment="Center"
+                                     PlaceholderText="пароль для экспорта/импорта" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Status}" Opacity="0.8" Margin="0,8,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card Margin="0,0,0,24" Padding="8">
+                <DataGrid ItemsSource="{Binding Accounts}" AutoGenerateColumns="False" CanUserAddRows="False"
+                          IsReadOnly="True" MinHeight="120" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Аккаунт" Binding="{Binding Username}" Width="150" />
+                        <DataGridTemplateColumn Header="Статус" Width="160">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding Status}" />
+                                                <Setter Property="VerticalAlignment" Value="Center" />
+                                                <Setter Property="Margin" Value="4,0" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="active">
+                                                        <Setter Property="Text" Value="✅ активен" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="cooldown">
+                                                        <Setter Property="Text" Value="⏸ кулдаун" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="banned">
+                                                        <Setter Property="Text" Value="🚫 забанен" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="needs_check">
+                                                        <Setter Property="Text" Value="⚠️ нужна проверка" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Кулдаун до" Binding="{Binding CooldownUntil, StringFormat=dd.MM HH:mm}" Width="120" />
+                        <DataGridTextColumn Header="Страна" Binding="{Binding StickyCountry}" Width="80" />
+                        <DataGridTextColumn Header="Запусков" Binding="{Binding UseCount}" Width="90" />
+                        <DataGridTextColumn Header="Последнее использование" Binding="{Binding LastUsedAt, StringFormat=dd.MM HH:mm}" Width="170" />
+                        <DataGridTemplateColumn Header="Действия" Width="360">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:Button Content="Проверить" FontSize="11" Margin="0,0,6,0"
+                                                   Command="{Binding DataContext.CheckSessionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}" />
+                                        <ui:Button Content="Экспорт" FontSize="11" Margin="0,0,6,0"
+                                                   Command="{Binding DataContext.ExportAccountCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}" />
+                                        <ui:Button Content="Снять кулдаун" FontSize="11" Margin="0,0,6,0"
+                                                   Command="{Binding DataContext.ClearCooldownCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}" />
+                                        <ui:Button Content="Удалить" FontSize="11"
+                                                   Command="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ui:Card>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

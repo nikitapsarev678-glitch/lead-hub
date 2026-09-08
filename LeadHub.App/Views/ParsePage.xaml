@@ -1,0 +1,218 @@
+<Page x:Class="LeadHub.App.Views.ParsePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Панель парсинга">
+    <ScrollViewer Padding="24,16,24,24" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,24,0,0">
+
+            <TextBlock Text="Панель парсинга" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Text="Все характеристики поиска из скилла: ниши, города-волны, фильтры квалификации, скорость, ресурсы."
+                       Opacity="0.7" Margin="0,4,0,16" TextWrapping="Wrap" />
+
+            <!-- Пресеты -->
+            <ui:Card Margin="0,0,0,12" Padding="16">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Пресет:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBox x:Name="PresetNameBox" Text="{Binding PresetName, UpdateSourceTrigger=PropertyChanged}" Width="180" Margin="0,0,8,0" />
+                    <ComboBox x:Name="PresetCombo" ItemsSource="{Binding PresetNames}" Width="200" Margin="0,0,8,0" />
+                    <ui:Button Content="Загрузить" Command="{Binding LoadPresetByNameCommand}" CommandParameter="{Binding SelectedItem, ElementName=PresetCombo}" Margin="0,0,8,0" />
+                    <ui:Button Content="Сохранить" Icon="{ui:SymbolIcon Save24}" Command="{Binding SavePresetCommand}" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Тема поиска -->
+            <ui:Card Margin="0,0,0,12" Padding="16">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="Ниши (что искать)" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ui:Button Content="Любимые из скилла" Command="{Binding SelectFavoriteNichesCommand}" Margin="0,0,8,0" />
+                            <ui:Button Content="Выбрать все" Command="{Binding SelectAllNichesCommand}" Margin="0,0,8,0" />
+                            <ui:Button Content="Очистить" Command="{Binding ClearNichesCommand}" />
+                        </StackPanel>
+                    </DockPanel>
+                    <ComboBox x:Name="NicheGroupFilter" Margin="0,0,0,8" SelectionChanged="NicheGroupFilter_Changed" Width="280"
+                              HorizontalAlignment="Left" />
+                    <ItemsControl x:Name="NichesList" MaxHeight="260" VirtualizingPanel.IsVirtualizing="True"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Opacity="0.8" Margin="0,8,0,4" />
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,2,16,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Свои ключевые слова (по одному в строке):" Margin="0,10,0,4" Opacity="0.8" />
+                    <ui:TextBox Text="{Binding CustomKeywordsText, UpdateSourceTrigger=PropertyChanged}" Height="52" AcceptsReturn="True"
+                                TextWrapping="Wrap" PlaceholderText="например: аренда тента&#x0a;мебель для кафе" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Города -->
+            <ui:Card Margin="0,0,0,12" Padding="16">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="Города (волны из скилла)" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ui:Button Content="Выбрать все" Command="{Binding SelectAllCitiesCommand}" Margin="0,0,8,0" />
+                            <ui:Button Content="Очистить" Command="{Binding ClearCitiesCommand}" />
+                        </StackPanel>
+                    </DockPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <CheckBox Content="Волна 1 — миллионники" IsChecked="{Binding Tier1}" Margin="0,0,16,0" />
+                        <CheckBox Content="Волна 2 — региональные центры" IsChecked="{Binding Tier2}" Margin="0,0,16,0" />
+                        <CheckBox Content="Волна 3 — 100–500 тыс." IsChecked="{Binding Tier3}" />
+                    </StackPanel>
+                    <TextBlock Text="Или отдельные города (если ничего не выбрано — берутся все выбранных волн):" Opacity="0.7" Margin="0,0,0,4" />
+                    <ItemsControl x:Name="CitiesList" MaxHeight="180" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Opacity="0.8" Margin="0,6,0,2" Width="240" />
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,2,12,2" Width="118" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Цель, контакты, фильтры -->
+            <ui:Card Margin="0,0,0,12" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Цель, контакты и квалификация (пороги скилла)" FontWeight="SemiBold" Margin="0,0,0,10" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="Цель лидов" Opacity="0.8" />
+                            <ui:TextBox Text="{Binding TargetLeads}" />
+                            <TextBlock Text="Режим контактов" Opacity="0.8" Margin="0,8,0,0" />
+                            <ComboBox ItemsSource="{Binding ContactModeLabels}" SelectedIndex="{Binding ContactModeIndex}" />
+                            <TextBlock Text="Скорость" Opacity="0.8" Margin="0,8,0,0" />
+                            <ComboBox ItemsSource="{Binding SpeedLabels}" SelectedIndex="{Binding SpeedIndex}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                            <TextBlock Text="Подписчики: минимум" Opacity="0.8" />
+                            <ui:TextBox Text="{Binding MinFollowers}" />
+                            <TextBlock Text="Подписчики: максимум (50 000 — отсечка сетей)" Opacity="0.8" Margin="0,8,0,0" />
+                            <ui:TextBox Text="{Binding MaxFollowers}" />
+                            <TextBlock Text="Минимум постов (5)" Opacity="0.8" Margin="0,8,0,0" />
+                            <ui:TextBox Text="{Binding MinMedia}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Пост не старше (дней, 45)" Opacity="0.8" />
+                            <ui:TextBox Text="{Binding MaxPostAgeDays}" />
+                            <CheckBox Content="Свежесть: пост ≤45д или сторис ≤48ч" IsChecked="{Binding RequireRecentActivity}" Margin="0,8,0,0" />
+                            <CheckBox Content="Отсев тренеров/блогеров/одиночек" IsChecked="{Binding UsePersonalReject}" Margin="0,6,0,0" />
+                            <CheckBox Content="Не искать уже выданные лиды (дедуп)" IsChecked="{Binding DedupAgainstHistory}" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Text="Исключить ниши (regex):" Opacity="0.8" Margin="0,10,0,4" />
+                    <ui:TextBox Text="{Binding ExcludeNichesRe, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Скорость и ресурсы -->
+            <ui:Card Margin="0,0,0,12" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Скорость и ресурсы (ротация)" FontWeight="SemiBold" Margin="0,0,0,10" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Параллельных воркеров (1–8, = слоты)" Opacity="0.8" />
+                            <ui:TextBox Text="{Binding Workers}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                            <TextBlock Text="Кап запросов на аккаунт в день" Opacity="0.8" />
+                            <ui:TextBox Text="{Binding DailyCap}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Кулдаун аккаунта при лимите (минут)" Opacity="0.8" />
+                            <ui:TextBox Text="{Binding CooldownMinutes}" />
+                        </StackPanel>
+                    </Grid>
+                    <CheckBox Content="Авто: выбирать наименее используемые аккаунты и VPN (рекомендуется)"
+                              IsChecked="{Binding AutoRotate}" Margin="0,10,0,4" />
+                    <TextBlock Text="Если выключено — воркеры используют аккаунты и VPN, отмеченные галочками ниже."
+                               Opacity="0.6" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Accounts}" Margin="0,8,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Username}" Margin="0,2,14,2"
+                                          Command="{Binding DataContext.ToggleAccountPickCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                          CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding VpnNodes}" Margin="0,4,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Margin="0,2,14,2"
+                                          Command="{Binding DataContext.ToggleVpnPickCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                          CommandParameter="{Binding}">
+                                    <CheckBox.Content>
+                                        <MultiBinding StringFormat="{}{0} {1}">
+                                            <Binding Path="Flag" />
+                                            <Binding Path="Name" />
+                                        </MultiBinding>
+                                    </CheckBox.Content>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Запуск -->
+            <ui:Card Margin="0,0,0,24" Padding="16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button Content="🚀 Запустить прогон" Appearance="Primary" FontSize="16" Padding="24,10"
+                                   Command="{Binding StartRunCommand}" Margin="0,0,16,0" />
+                        <TextBlock Text="{Binding Status}" VerticalAlignment="Center" TextWrapping="Wrap" Opacity="0.9" />
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

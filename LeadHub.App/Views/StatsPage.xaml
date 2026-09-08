@@ -1,0 +1,96 @@
+<Page x:Class="LeadHub.App.Views.StatsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Статистика">
+    <ScrollViewer Padding="24,16,24,24">
+        <StackPanel Margin="0,24,0,0">
+
+            <TextBlock Text="Статистика" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Text="База авто-выбора ротации: кто и как использовался. История прогонов."
+                       Opacity="0.7" Margin="0,4,0,16" />
+
+            <UniformGrid Columns="5" Margin="0,0,0,12">
+                <ui:Card Margin="0,0,8,0" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="Лидов всего" Opacity="0.7" />
+                        <TextBlock Text="{Binding TotalLeads}" FontSize="26" FontWeight="Bold" />
+                    </StackPanel>
+                </ui:Card>
+                <ui:Card Margin="0,0,8,0" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="WhatsApp резерв" Opacity="0.7" />
+                        <TextBlock Text="{Binding LeadsWhatsapp}" FontSize="26" FontWeight="Bold" />
+                    </StackPanel>
+                </ui:Card>
+                <ui:Card Margin="0,0,8,0" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="Telegram" Opacity="0.7" />
+                        <TextBlock Text="{Binding LeadsTelegram}" FontSize="26" FontWeight="Bold" />
+                    </StackPanel>
+                </ui:Card>
+                <ui:Card Margin="0,0,8,0" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="Нужна проверка" Opacity="0.7" />
+                        <TextBlock Text="{Binding LeadsPending}" FontSize="26" FontWeight="Bold" />
+                    </StackPanel>
+                </ui:Card>
+                <ui:Card Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="Отмечено «Написал»" Opacity="0.7" />
+                        <TextBlock Text="{Binding LeadsSent}" FontSize="26" FontWeight="Bold" />
+                    </StackPanel>
+                </ui:Card>
+            </UniformGrid>
+
+            <ui:Card Margin="0,0,0,12" Padding="8">
+                <StackPanel>
+                    <TextBlock Text="Использование аккаунтов" FontWeight="SemiBold" Margin="8,8,8,4" />
+                    <DataGrid ItemsSource="{Binding AccountUsage}" AutoGenerateColumns="False" IsReadOnly="True"
+                              MinHeight="60" GridLinesVisibility="Horizontal" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Аккаунт" Binding="{Binding Label}" Width="*" />
+                            <DataGridTextColumn Header="Сегодня" Binding="{Binding Today}" Width="110" />
+                            <DataGridTextColumn Header="7 дней" Binding="{Binding Week}" Width="110" />
+                            <DataGridTextColumn Header="Всего" Binding="{Binding Total}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card Margin="0,0,0,12" Padding="8">
+                <StackPanel>
+                    <TextBlock Text="Использование VPN-узлов" FontWeight="SemiBold" Margin="8,8,8,4" />
+                    <DataGrid ItemsSource="{Binding VpnUsage}" AutoGenerateColumns="False" IsReadOnly="True"
+                              MinHeight="60" GridLinesVisibility="Horizontal" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Узел" Binding="{Binding Label}" Width="*" />
+                            <DataGridTextColumn Header="Сегодня" Binding="{Binding Today}" Width="110" />
+                            <DataGridTextColumn Header="7 дней" Binding="{Binding Week}" Width="110" />
+                            <DataGridTextColumn Header="Всего" Binding="{Binding Total}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card Margin="0,0,0,24" Padding="8">
+                <StackPanel>
+                    <TextBlock Text="История прогонов" FontWeight="SemiBold" Margin="8,8,8,4" />
+                    <DataGrid ItemsSource="{Binding Runs}" AutoGenerateColumns="False" IsReadOnly="True"
+                              MinHeight="60" GridLinesVisibility="Horizontal" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Прогон" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="100" />
+                            <DataGridTextColumn Header="Найдено" Binding="{Binding Discovered}" Width="90" />
+                            <DataGridTextColumn Header="Проверено" Binding="{Binding Validated}" Width="100" />
+                            <DataGridTextColumn Header="Прошло фильтры" Binding="{Binding Qualified}" Width="120" />
+                            <DataGridTextColumn Header="Лидов" Binding="{Binding Leads}" Width="80" />
+                            <DataGridTextColumn Header="Причина остановки" Binding="{Binding StopReason}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </ui:Card>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

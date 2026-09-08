@@ -1,0 +1,71 @@
+<ui:FluentWindow x:Class="LeadHub.App.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="LeadHub — поиск клиентов через Instagram"
+                 Width="1320" Height="860" MinWidth="1000" MinHeight="640"
+                 WindowStartupLocation="CenterScreen"
+                 ExtendsContentIntoTitleBar="True">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="LeadHub" FontSize="22" FontWeight="SemiBold"
+                           Margin="18,40,12,2" />
+                <TextBlock DockPanel.Dock="Top" Text="лиды · VPN · аккаунты" FontSize="12" Opacity="0.6"
+                           Margin="18,0,12,14" />
+                <ListBox x:Name="NavList" SelectionChanged="NavList_SelectionChanged" BorderThickness="0"
+                         Background="Transparent" Margin="6,0">
+                    <ListBoxItem Tag="vpn">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🌐" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="VPN" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="accounts">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="👤" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Аккаунты Instagram" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="parse">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🎯" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Панель парсинга" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="run">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚡" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Прогон" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="leads">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Лиды" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="stats">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Статистика" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Tag="settings">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Настройки" FontSize="14" />
+                        </StackPanel>
+                    </ListBoxItem>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <ContentControl x:Name="PageHost" Grid.Column="1" />
+    </Grid>
+</ui:FluentWindow>
