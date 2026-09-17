@@ -40,7 +40,6 @@ public partial class RunViewModel : ObservableObject
         _runner.RunStarted += () => Application.Current.Dispatcher.BeginInvoke(() => IsRunning = true);
         IsRunning = runner.IsRunning;
         VpnStatus = _vpn.StatusText;
-        VpnStatus = _vpn.StatusText;
     }
 
     [RelayCommand(CanExecute = nameof(CanStop))]
