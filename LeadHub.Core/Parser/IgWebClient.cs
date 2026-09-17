@@ -64,7 +64,7 @@ public sealed class IgWebClient : IDisposable
             _http.DefaultRequestHeaders.Add("X-CSRFToken", token);
     }
 
-    /// <summary>Поиск (topsearch): кандидаты по запросу «ниша + город + контактный терм».</summary>
+    /// <summary>Поиск (topsearch): кандидаты по запросу «ниша + город» (без контактных слов).</summary>
     public async Task<List<Candidate>> SearchTopAsync(string query, string niche, string nicheGroup, string sourceCity)
     {
         var url = $"https://www.instagram.com/api/v1/web/search/topsearch/?context=blended&query={Uri.EscapeDataString(query)}&include_reel=true";

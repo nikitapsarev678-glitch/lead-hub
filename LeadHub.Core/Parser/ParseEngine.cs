@@ -112,10 +112,20 @@ public sealed class ParseEngine(Db db, Rotator rotator, Func<long, CookieSession
             .Cast<Niche>()
             .ToList();
 
-        var terms = ContactQueryTerms.For(preset.ContactMode);
         var tasks = new List<SearchTask>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var wave1 = cities.Where(c => SearchMatrix.Cities.First(x => x.Name == c).Tier == 1).ToList();
         var wave2 = cities.Where(c => SearchMatrix.Cities.First(x => x.Name == c).Tier != 1).ToList();
+
+        // Поисковая фраза = ниша/ключевое слово + город. Контактный режим (WhatsApp/Telegram) —
+        // это фильтр квалификации, а НЕ часть поискового запроса: подмешивание слов вроде
+        // «вотсапп» в topsearch ломало выдачу и находило 0 бизнес-аккаунтов.
+        void Add(string query, string niche, string group, string city)
+        {
+            query = query.Trim();
+            if (query.Length > 0 && seen.Add($"{city}::{query}"))
+                tasks.Add(new SearchTask(query, niche, group, city));
+        }
 
         foreach (var cityWave in new[] { wave1, wave2 })
         {
@@ -123,11 +133,9 @@ public sealed class ParseEngine(Db db, Rotator rotator, Func<long, CookieSession
             {
                 foreach (var niche in niches)
                     foreach (var phrase in niche.Phrases)
-                        foreach (var term in terms.Take(3))
-                            tasks.Add(new SearchTask($"{phrase} {city} {term}", niche.Label, niche.Group, city));
+                        Add($"{phrase} {city}", niche.Label, niche.Group, city);
                 foreach (var keyword in preset.CustomKeywords)
-                    foreach (var term in terms.Take(2))
-                        tasks.Add(new SearchTask($"{keyword} {city} {term}", keyword, "Свои ключевые слова", city));
+                    Add($"{keyword} {city}", keyword, "Свои ключевые слова", city);
             }
         }
         return tasks.OrderBy(t => Guid.NewGuid()).ToList(); // перемешать, чтобы ниши не шли блоками
@@ -215,7 +223,8 @@ public sealed class ParseEngine(Db db, Rotator rotator, Func<long, CookieSession
                         if (ct.IsCancellationRequested) break;
                         if (candidate.Private || candidate.Following || candidate.Handle.Length < 3) continue;
                         if (!_seenHandles.TryAdd(candidate.Handle, 0)) continue;
-                        if (Qualifier.PersonalRejectRe.IsMatch($"{candidate.Handle.Replace('.', ' ').Replace('_', ' ').Replace('-', ' ')} {candidate.Title} {candidate.FullTitle}")) continue;
+                        if (preset.UsePersonalReject &&
+                            Qualifier.PersonalRejectRe.IsMatch($"{candidate.Handle.Replace('.', ' ').Replace('_', ' ').Replace('-', ' ')} {candidate.Title} {candidate.FullTitle}")) continue;
 
                         IgProfile? profile;
                         try

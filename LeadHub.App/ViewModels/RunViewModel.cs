@@ -17,7 +17,9 @@ public partial class RunViewModel : ObservableObject
 
     [ObservableProperty] private long _leads;
     [ObservableProperty] private long _validated;
-    [ObservableProperty] private bool _isRunning;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StopCommand))]
+    private bool _isRunning;
     [ObservableProperty] private string _vpnStatus = "";
 
     public RunViewModel(AppState state, ParseRunner runner, SingBoxRuntime vpn)
@@ -35,13 +37,17 @@ public partial class RunViewModel : ObservableObject
             Leads = _runner.TotalLeads;
         });
         _vpn.StatusChanged += s => Application.Current.Dispatcher.BeginInvoke(() => VpnStatus = s);
+        _runner.RunStarted += () => Application.Current.Dispatcher.BeginInvoke(() => IsRunning = true);
         IsRunning = runner.IsRunning;
+        VpnStatus = _vpn.StatusText;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanStop))]
     private void Stop()
     {
         _runner.Stop();
         IsRunning = false;
     }
+
+    private bool CanStop() => IsRunning;
 }

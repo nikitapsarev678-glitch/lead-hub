@@ -25,6 +25,14 @@ public sealed record QualificationResult
 public sealed class Qualifier(ParseOptions? options = null)
 {
     private readonly ParseOptions _options = options ?? new ParseOptions();
+    private readonly Regex? _excludeNicheRe = BuildExcludeRe((options ?? new ParseOptions()).ExcludeNichesRe);
+
+    private static Regex? BuildExcludeRe(string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern)) return null;
+        try { return new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase); }
+        catch (ArgumentException) { return null; } // некорректный regex — просто не применяем
+    }
 
     public static readonly Regex PersonalRejectRe = new(
         @"(?:^|\b)(тренер|фитнес|йог[аи]|психолог|коуч|нутрициолог|блогер|эксперт|наставник|визажист|бровист|стилист|фотограф|электрик|electric|врач|доктор|doctor|dentist|мастер\s+маникюра|таролог|астролог|модель|актрис|личный\s+блог|personal\s+blog)(?:\b|$)",
@@ -120,8 +128,9 @@ public sealed class Qualifier(ParseOptions? options = null)
         if (user.MediaCount < _options.MinMedia) reasons.Add("too_few_posts");
         if (messenger.Telegram == "" && messenger.Whatsapp == "" && !(_options.ContactMode == ContactMode.TelegramFirst && publicPhone != ""))
             reasons.Add("messenger_not_confirmed_in_profile");
-        if (bioSite.Found) reasons.Add("site_or_landing_in_profile");
-        if (PersonalRejectRe.IsMatch(combined)) reasons.Add("personal_or_trainer_profile");
+        if (bioSite.Found && _options.ExcludeSiteInProfile) reasons.Add("site_or_landing_in_profile");
+        if (_options.UsePersonalReject && PersonalRejectRe.IsMatch(combined)) reasons.Add("personal_or_trainer_profile");
+        if (_excludeNicheRe != null && _excludeNicheRe.IsMatch(combined)) reasons.Add("excluded_niche");
         if (!NicheMatch(candidate, user)) reasons.Add("niche_not_confirmed");
         if (user.FollowerCount < _options.MinFollowers) reasons.Add("very_small_audience");
         if (user.FollowerCount > _options.MaxFollowers) reasons.Add("audience_above_cap");
@@ -149,7 +158,7 @@ public sealed class Qualifier(ParseOptions? options = null)
         var storyActive = latestStoryTs > 0 && nowUnix - latestStoryTs <= 2 * 86400;
         if ((ageDays == null || ageDays > _options.MaxPostAgeDays) && !storyActive)
             reasons.Add("no_recent_post_45d_or_active_story");
-        if (bioSite.Found) reasons.Add("site_or_landing_in_profile");
+        if (bioSite.Found && _options.ExcludeSiteInProfile) reasons.Add("site_or_landing_in_profile");
 
         reasons = reasons.Distinct().ToList();
         return new QualificationResult
@@ -189,4 +198,11 @@ public sealed class ParseOptions
     public int MaxFollowers { get; set; } = 50000;
     public int MinMedia { get; set; } = 5;
     public int MaxPostAgeDays { get; set; } = 45;
+
+    /// <summary>Отсеивать профили, где в шапке указан сайт/лендинг (цель скилла — бизнесы без сайта).</summary>
+    public bool ExcludeSiteInProfile { get; set; } = true;
+    /// <summary>Отсеивать личные профили: тренеры, блогеры, одиночные мастера.</summary>
+    public bool UsePersonalReject { get; set; } = true;
+    /// <summary>Regex ниш-исключений (например «торт|кондитер»); пусто — не применять.</summary>
+    public string ExcludeNichesRe { get; set; } = "";
 }

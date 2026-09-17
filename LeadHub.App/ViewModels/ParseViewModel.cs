@@ -52,6 +52,7 @@ public partial class ParseViewModel : ObservableObject
     [ObservableProperty] private bool _requireRecentActivity = true;
     [ObservableProperty] private string _excludeNichesRe = "торт|кондитер|десерт|воздушн.*шар|детск.*школ|частн.*детск|детск.*сад";
     [ObservableProperty] private bool _usePersonalReject = true;
+    [ObservableProperty] private bool _excludeSiteInProfile = true;
     [ObservableProperty] private string _customKeywordsText = "";
     [ObservableProperty] private bool _tier1 = true;
     [ObservableProperty] private bool _tier2 = true;
@@ -124,6 +125,7 @@ public partial class ParseViewModel : ObservableObject
             RequireRecentActivity = RequireRecentActivity,
             ExcludeNichesRe = ExcludeNichesRe,
             UsePersonalReject = UsePersonalReject,
+            ExcludeSiteInProfile = ExcludeSiteInProfile,
             CustomKeywords = CustomKeywordsText.Split('\n').Select(k => k.Trim()).Where(k => k.Length > 0).ToList(),
             SelectedNiches = Niches.Where(n => n.IsSelected).Select(n => n.Label).ToList(),
             SelectedCities = Cities.Where(c => c.IsSelected).Select(c => c.Name).ToList(),
@@ -228,6 +230,7 @@ public partial class ParseViewModel : ObservableObject
         RequireRecentActivity = preset.RequireRecentActivity;
         ExcludeNichesRe = preset.ExcludeNichesRe;
         UsePersonalReject = preset.UsePersonalReject;
+        ExcludeSiteInProfile = preset.ExcludeSiteInProfile;
         CustomKeywordsText = string.Join("\n", preset.CustomKeywords);
         Tier1 = preset.CityTiers.Contains(1);
         Tier2 = preset.CityTiers.Contains(2);

@@ -34,28 +34,29 @@
                     </DockPanel>
                     <ComboBox x:Name="NicheGroupFilter" Margin="0,0,0,8" SelectionChanged="NicheGroupFilter_Changed" Width="280"
                               HorizontalAlignment="Left" />
-                    <ItemsControl x:Name="NichesList" MaxHeight="260" VirtualizingPanel.IsVirtualizing="True"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.GroupStyle>
-                            <GroupStyle>
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Opacity="0.8" Margin="0,8,0,4" />
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </ItemsControl.GroupStyle>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,2,16,2" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="NichesList">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Opacity="0.8" Margin="0,8,0,4" />
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,2,16,2" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                     <TextBlock Text="Свои ключевые слова (по одному в строке):" Margin="0,10,0,4" Opacity="0.8" />
                     <ui:TextBox Text="{Binding CustomKeywordsText, UpdateSourceTrigger=PropertyChanged}" Height="52" AcceptsReturn="True"
                                 TextWrapping="Wrap" PlaceholderText="например: аренда тента&#x0a;мебель для кафе" />
@@ -78,27 +79,29 @@
                         <CheckBox Content="Волна 3 — 100–500 тыс." IsChecked="{Binding Tier3}" />
                     </StackPanel>
                     <TextBlock Text="Или отдельные города (если ничего не выбрано — берутся все выбранных волн):" Opacity="0.7" Margin="0,0,0,4" />
-                    <ItemsControl x:Name="CitiesList" MaxHeight="180" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.GroupStyle>
-                            <GroupStyle>
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Opacity="0.8" Margin="0,6,0,2" Width="240" />
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </ItemsControl.GroupStyle>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,2,12,2" Width="118" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="CitiesList">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Opacity="0.8" Margin="0,6,0,2" Width="240" />
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,2,12,2" Width="118" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </StackPanel>
             </ui:Card>
 
@@ -133,6 +136,7 @@
                             <ui:TextBox Text="{Binding MaxPostAgeDays}" />
                             <CheckBox Content="Свежесть: пост ≤45д или сторис ≤48ч" IsChecked="{Binding RequireRecentActivity}" Margin="0,8,0,0" />
                             <CheckBox Content="Отсев тренеров/блогеров/одиночек" IsChecked="{Binding UsePersonalReject}" Margin="0,6,0,0" />
+                            <CheckBox Content="Отсев профилей с сайтом в шапке (цель — бизнес без сайта)" IsChecked="{Binding ExcludeSiteInProfile}" Margin="0,6,0,0" />
                             <CheckBox Content="Не искать уже выданные лиды (дедуп)" IsChecked="{Binding DedupAgainstHistory}" Margin="0,6,0,0" />
                         </StackPanel>
                     </Grid>
