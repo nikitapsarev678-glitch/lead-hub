@@ -54,6 +54,9 @@ public sealed class ParsePreset
         MaxFollowers = MaxFollowers,
         MinMedia = MinMedia,
         MaxPostAgeDays = RequireRecentActivity ? MaxPostAgeDays : 3650,
+        ExcludeSiteInProfile = ExcludeSiteInProfile,
+        UsePersonalReject = UsePersonalReject,
+        ExcludeNichesRe = ExcludeNichesRe,
     };
 
     public (int DiscoveryPauseMs, int DiscoveryJitterMs, int ValidationDelayMs, int ValidationJitterMs, int MaxPerSecondPerWorker) Pacing() => Speed switch
@@ -65,21 +68,3 @@ public sealed class ParsePreset
 }
 
 public enum PacingSpeed { Careful, Normal, Night }
-
-public enum ContactQueryTermsMode
-{
-    /// <summary>Термины контактов по режиму: WhatsApp-first/only → WhatsApp-термины, Telegram-first/only → Telegram-термины.</summary>
-    Auto,
-}
-
-public static class ContactQueryTerms
-{
-    public static readonly string[] WhatsApp = { "WhatsApp", "ватсап", "вотсап", "wa.me", "телефон", "+7" };
-    public static readonly string[] Telegram = { "Telegram", "телеграм", "t.me", "tg" };
-
-    public static string[] For(ContactMode mode) => mode switch
-    {
-        ContactMode.TelegramFirst or ContactMode.TelegramOnly => Telegram,
-        _ => WhatsApp,
-    };
-}

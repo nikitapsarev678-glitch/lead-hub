@@ -22,6 +22,7 @@ public sealed class ParseRunner : IDisposable
 
     public event Action? RunFinished;
     public event Action? CountsChanged;
+    public event Action? RunStarted;
 
     public ParseRunner(AppState state, SingBoxRuntime vpn)
     {
@@ -61,6 +62,7 @@ public sealed class ParseRunner : IDisposable
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
         var basePort = SingBoxRuntime.BaseProxyPort;
+        RunStarted?.Invoke();
 
         _task = Task.Run(async () =>
         {

@@ -253,6 +253,47 @@ public class QualificationTests
         var result = q.Qualify(Candidate(), profile, Now);
         Assert.Equal("79001234567", result.PublicPhone);
     }
+
+    [Fact]
+    public void Qualify_SiteInBio_AllowedWhenExclusionOff()
+    {
+        // Тумблер «Отсев профилей с сайтом» выключен — бизнес с сайтом теперь проходит.
+        var q = new Qualifier(new ParseOptions { ExcludeSiteInProfile = false });
+        var profile = Profile(p => p.BioLinks.Add("https://kuhni-kazan.ru"));
+        var result = q.Qualify(Candidate(), profile, Now);
+        Assert.DoesNotContain("site_or_landing_in_profile", result.Reasons);
+        Assert.True(result.QualifiedPreSite);
+    }
+
+    [Fact]
+    public void Qualify_PersonalProfile_AllowedWhenRejectOff()
+    {
+        // Тумблер «Отсев тренеров/блогеров» выключен — причина personal_* не добавляется.
+        var q = new Qualifier(new ParseOptions { UsePersonalReject = false });
+        var profile = Profile(p => { p.FullName = "Фитнес-тренер Маша"; p.Biography = "Личный блог о тренировках"; });
+        var result = q.Qualify(Candidate(), profile, Now);
+        Assert.DoesNotContain("personal_or_trainer_profile", result.Reasons);
+    }
+
+    [Fact]
+    public void Qualify_ExcludedNicheRegex_Rejects()
+    {
+        var q = new Qualifier(new ParseOptions { ExcludeNichesRe = "торт|кондитер" });
+        var profile = Profile(p => p.Biography = "Торты на заказ, Казань. WhatsApp по ссылке");
+        var result = q.Qualify(Candidate(), profile, Now);
+        Assert.Contains("excluded_niche", result.Reasons);
+        Assert.False(result.QualifiedPreSite);
+    }
+
+    [Fact]
+    public void Qualify_InvalidExcludeRegex_IsIgnored()
+    {
+        // Некорректный regex не должен ронять квалификацию — просто не применяется.
+        var q = new Qualifier(new ParseOptions { ExcludeNichesRe = "([" });
+        var result = q.Qualify(Candidate(), Profile(), Now);
+        Assert.DoesNotContain("excluded_niche", result.Reasons);
+        Assert.True(result.QualifiedPreSite);
+    }
 }
 
 public class ContactExtractorTests
@@ -398,7 +439,7 @@ public class SearchMatrixTests
     }
 
     [Fact]
-    public void BuildQueryPlan_NicheByCityByTerms()
+    public void BuildQueryPlan_QueryIsNichePlusCity_NoContactTerms()
     {
         var preset = new ParsePreset
         {
@@ -408,8 +449,30 @@ public class SearchMatrixTests
             ContactMode = ContactMode.WhatsAppFirst,
         };
         var plan = ParseEngine.BuildQueryPlan(preset);
-        Assert.All(plan, t => Assert.Contains("Казань", t.Query));
-        Assert.True(plan.Count >= 6); // 3 фразы × 3 термина максимум
+        Assert.NotEmpty(plan);
+        // Запрос = «формулировка + город», город в конце.
+        Assert.All(plan, t => Assert.EndsWith("Казань", t.Query));
+        // Контактные слова НЕ должны попадать в поисковый запрос (это ломало topsearch).
+        string[] banned = { "whatsapp", "ватсап", "вотсап", "wa.me", "телефон", "telegram", "телеграм", "t.me", "+7" };
+        Assert.All(plan, t => Assert.DoesNotContain(banned, b => t.Query.ToLowerInvariant().Contains(b)));
+        // 3 формулировки × 1 город = 3 уникальных запроса, без дублей.
+        Assert.Equal(3, plan.Count);
+        Assert.Equal(plan.Count, plan.Select(t => t.Query).Distinct().Count());
+    }
+
+    [Fact]
+    public void BuildQueryPlan_CustomKeyword_IsCombinedWithCity()
+    {
+        var preset = new ParsePreset
+        {
+            CustomKeywords = { "аренда тента" },
+            SelectedCities = { "Казань" },
+            CityTiers = { 1, 2, 3 },
+            ContactMode = ContactMode.TelegramFirst,
+        };
+        var plan = ParseEngine.BuildQueryPlan(preset);
+        Assert.Contains(plan, t => t.Query == "аренда тента Казань");
+        Assert.All(plan, t => Assert.DoesNotContain("t.me", t.Query.ToLowerInvariant()));
     }
 }
 
